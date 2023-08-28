@@ -109,6 +109,22 @@ router.get("/:id", async (req, res, next) => {
     // then firstName (both in ascending order)
     // (Optional): No need to include the StudentClassrooms
     // Your code here
+    include: [
+        {
+            model: Supply,
+            attributes: ['id', 'name', 'category', 'handed']
+        },
+        {
+            model: Student,
+            attributes: ['id', 'firstName', 'lastName', 'leftHanded']
+        }
+    ],
+    order: [
+        [Supply, 'category'],
+        [Supply, 'name'],
+        [Student, 'firstName'],
+        [Student, 'lastName']
+    ]
   });
 
   if (!classroom) {
