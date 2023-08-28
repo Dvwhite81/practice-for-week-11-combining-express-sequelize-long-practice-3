@@ -40,8 +40,53 @@ router.get("/", async (req, res, next) => {
                     errorResult.errors
     */
   const where = {};
+  // name filter
+  if (req.query.name) {
+    where.name = {
+      [Op.like]: `%${req.query.name}%`,
+    };
+  }
 
-  // Your code here
+  // studentLimit filter
+  const studentLimit = req.query.studentLimit;
+  console.log("1:", studentLimit);
+  if (studentLimit) {
+    // With comma
+    if (studentLimit.includes(",")) {
+      let [min, max] = studentLimit.split(",");
+      console.log("2:", min, max);
+      min = parseInt(min);
+      max = parseInt(max);
+      console.log("3:", min, max);
+
+      if (isNaN(min) || isNaN(max) || min > max) {
+        errorResult.errors.push({
+          message: "Student Limit should be two numbers: min, max",
+        });
+      } else {
+        console.log("where");
+        where.studentLimit = {
+          [Op.between]: [min, max],
+        };
+      }
+    // No comma
+    } else {
+        if (isNaN(studentLimit)) {
+            console.log("no 1:", studentLimit);
+            errorResult.errors.push({
+                message: "Student Limit should be an integer"
+            });
+        } else {
+            where.studentLimit = studentLimit
+        }
+    }
+  }
+
+  if (errorResult.errors.length > 0) {
+    errorResult.count = await Student.count();
+    const resBody = errorResult;
+    res.status(400).json(resBody);
+  }
 
   const classrooms = await Classroom.findAll({
     attributes: ["id", "name", "studentLimit"],
@@ -97,14 +142,13 @@ router.get("/:id", async (req, res, next) => {
 
   // Optional Phase 5D: Calculate the average grade of the classroom
   // Your code here
-  const sumGrade = await StudentClassroom.sum('grade', {
+  const sumGrade = await StudentClassroom.sum("grade", {
     where: {
-        classroomId: req.params.id
-    }
+      classroomId: req.params.id,
+    },
   });
 
   classroom.avgGrade = sumGrade / classroom.studentCount;
-
 
   res.json(classroom);
 });
