@@ -8,6 +8,7 @@ const {
   Supply,
   StudentClassroom,
   Student,
+  sequelize,
 } = require("../db/models");
 const { Op } = require("sequelize");
 
@@ -89,10 +90,21 @@ router.get("/", async (req, res, next) => {
   }
 
   const classrooms = await Classroom.findAll({
-    attributes: ["id", "name", "studentLimit"],
+    // In phase 9A readme - it includes createdAt and updatedAt
+    attributes: ["id", "name", "studentLimit", "createdAt", "updatedAt",
+    // Phase 9A
+    [sequelize.fn("AVG", sequelize.col("grade")), "avgGrade"],
+    [sequelize.fn("COUNT", sequelize.col("studentId")), "numStudents"]
+    ],
     where,
+    include: [
+        {
+            model: StudentClassroom,
+            attributes: []
+        }
+    ],
     // Phase 1B: Order the Classroom search results
-    order: [["name"]],
+    order: [["name"]]
   });
 
   res.json(classrooms);
