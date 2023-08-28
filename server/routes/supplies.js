@@ -27,6 +27,7 @@ router.get('/category/:categoryName', async (req, res, next) => {
             ],
             order: [
                 [Classroom, 'name'],
+                ['id'],
                 ['name'],
                 ['handed']
             ]

@@ -70,14 +70,15 @@ router.get('/', async (req, res, next) => {
         }
     }
 
-    if (req.query.lefty === 'true') {
-        where.leftHanded = true;
-    } else if (req.query.lefty === 'false') {
-        where.leftHanded = false;
-    } else {
-        errorResult.errors.push({ message: 'Lefty should be either true or false' });
+    if (req.query.lefty) {
+        if (req.query.lefty === 'true') {
+            where.leftHanded = true;
+        } else if (req.query.lefty === 'false') {
+            where.leftHanded = false;
+        } else {
+            errorResult.errors.push({ message: 'Lefty should be either true or false' });
+        }
     }
-
 
     // Phase 2C: Handle invalid params with "Bad Request" response
     // Phase 3C: Include total student count in the response even if params were
